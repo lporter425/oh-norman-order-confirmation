@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Oh Norman — Order Confirmation Preview</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Poppins:wght@400&display=swap">
+  <style>
+    @font-face {
+      font-family: "SharpGroteskBold";
+      src: url("https://cdn.shopify.com/s/files/1/0790/2049/1041/files/SharpGroteskBold-25.woff?v=1787683809") format("woff");
+      font-weight: 700;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: "SharpGroteskMedium";
+      src: url("https://cdn.shopify.com/s/files/1/0790/2049/1041/files/SharpGroteskMedium-22.woff?v=1787683809") format("woff");
+      font-weight: 500;
+      font-style: normal;
+    }
+    body { margin: 0; padding: 32px 16px; background: #e8e8e8; font-family: "SharpSans-Book", Poppins, sans-serif; }
+    .preview-label { max-width: 600px; margin: 0 auto 8px; font-size: 13px; color: #666; text-align: center; }
+    .preview-note { max-width: 600px; margin: 0 auto 16px; font-size: 12px; color: #888; text-align: center; line-height: 1.5; }
+    .preview-note.error { color: #960000; }
+    .email-wrapper { max-width: 600px; margin: 0 auto; background: #F3EDE1; box-shadow: 0 4px 24px rgba(0,0,0,0.12); font-family: "SharpSans-Book", Poppins, sans-serif; }
+    .container { max-width: 560px; margin: 0 auto; }
+    .content__cell { padding: 32px 20px; background: #F3EDE1; font-family: "SharpSans-Book", Poppins, sans-serif; }
+    .section__cell { padding: 32px 20px; background: #F3EDE1; font-family: "SharpSans-Book", Poppins, sans-serif; }
+    h3, h4 { font-family: "SharpGroteskBold", Inter, sans-serif; font-weight: 700; color: #333; }
+    h3 { font-size: 18px; margin: 0 0 16px; }
+    h4 { font-size: 14px; margin: 0 0 8px; }
+    .on-heading { font-family: "SharpGroteskBold", Inter, sans-serif; font-weight: 700; color: #960000; text-align: center; margin: 0 0 16px; font-size: 32px; line-height: 1.2; }
+    .on-body { font-family: "SharpSans-Book", Poppins, sans-serif; color: #960000; text-align: center; line-height: 1.5; font-size: 15px; margin: 0 0 24px; }
+    .on-order-number { font-family: "SharpGroteskMedium", Inter, sans-serif; font-size: 17px; font-weight: 500; color: #960000; text-align: center; margin: 16px 0 0; }
+    .on-subheadline-img { display: block; margin: 0 auto; width: 100%; max-width: 600px; height: auto; border: 0; }
+    .button__cell { background: #960000; border-radius: 4px; padding: 14px 20px; text-align: center; }
+    .button__text,
+    .button__text:hover,
+    .button__text:active,
+    .button__text:visited { font-family: "SharpSans-Book", Poppins, sans-serif; color: #ffffff !important; text-decoration: none; font-size: 13px; font-weight: 600; }
+    .button__cell--shop-app { background: #333; }
+    .actions-buttons { max-width: 520px; margin: 0 auto; border-collapse: separate; border-spacing: 8px 0; }
+    .actions-buttons td { width: 50%; }
+    .on-made-for-pets-body { font-family: "SharpSans-Book", Poppins, sans-serif; color: #960000; text-align: center; font-size: 15px; line-height: 1.5; margin: 0; }
+    .on-footer-text { font-family: "SharpSans-Book", Poppins, sans-serif; color: #FAF4E8; font-size: 12px; text-align: center; margin: 0; }
+    .on-footer, .on-footer td, .on-footer table, .on-footer a, .on-footer img { border: none !important; outline: none !important; box-shadow: none !important; }
+    .on-nav-link { font-family: "SharpGroteskMedium", Inter, sans-serif; color: #FAF4E8; text-decoration: none; font-size: 14px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 500; }
+    .line-item { font-family: "SharpSans-Book", Poppins, sans-serif; font-size: 14px; color: #333; margin: 0 0 12px; }
+    .line-item img { vertical-align: middle; margin-right: 10px; border-radius: 4px; }
+    .summary-row { font-family: "SharpSans-Book", Poppins, sans-serif; font-size: 14px; color: #333; margin: 4px 0; text-align: right; }
+    .summary-total { font-family: "SharpGroteskBold", Inter, sans-serif; font-size: 16px; color: #333; text-align: right; margin-top: 12px; font-weight: 700; }
+    .customer-info { font-family: "SharpSans-Book", Poppins, sans-serif; font-size: 14px; color: #333; line-height: 1.6; white-space: pre-line; }
+    .customer-columns { width: 100%; border-collapse: collapse; }
+    .customer-columns td { vertical-align: top; width: 50%; padding-right: 12px; }
+  </style>
+</head>
+<body>
+  <p class="preview-label" id="preview-label">Oh Norman order confirmation preview</p>
+  <p class="preview-note" id="preview-note">Loading Shopify order data…</p>
+  <div class="email-wrapper" id="email-root"></div>
+
+  <script>
+    const FALLBACK = {
+      orderNumber: '87897',
+      firstName: 'Customer',
+      currency: 'USD',
+      lineItems: [],
+      total: null
+    };
+
+    function money(amount, currency) {
+      if (amount == null || amount === '') return '—';
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: currency || 'USD'
+      }).format(Number(amount));
+    }
+
+    function escapeHtml(str) {
+      return String(str ?? '').replace(/[&<>"']/g, (c) => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      })[c]);
+    }
+
+    function render(order) {
+      const itemsHtml = order.lineItems.length
+        ? order.lineItems.map((item) => {
+            const title = item.variant && item.variant !== 'Default Title'
+              ? `${item.title} — ${item.variant}`
+              : item.title;
+            const img = item.image
+              ? `<img src="${escapeHtml(item.image)}" alt="" width="60" height="60">`
+              : '';
+            return `<p class="line-item">${img}${escapeHtml(title)} × ${item.quantity} — <strong>${money(item.lineTotal, order.currency)}</strong></p>`;
+          }).join('')
+        : '<p class="line-item" style="color:#888;font-style:italic;">No line items loaded. Run <code>ruby scripts/fetch-order-preview.rb 87897</code> after setting up .env</p>';
+
+      const summaryRows = [
+        order.subtotal != null ? `<p class="summary-row">Subtotal: ${money(order.subtotal, order.currency)}</p>` : '',
+        order.shipping != null && Number(order.shipping) > 0 ? `<p class="summary-row">Shipping: ${money(order.shipping, order.currency)}</p>` : '',
+        order.tax != null && Number(order.tax) > 0 ? `<p class="summary-row">Tax: ${money(order.tax, order.currency)}</p>` : '',
+        order.total != null ? `<p class="summary-total">Total: ${money(order.total, order.currency)} ${order.currency}</p>` : ''
+      ].join('');
+
+      const customerHtml = (order.shippingAddress || order.billingAddress)
+        ? `<table class="customer-columns"><tr>
+            ${order.shippingAddress ? `<td><h4>Shipping address</h4><div class="customer-info">${escapeHtml(order.shippingAddress)}</div></td>` : ''}
+            ${order.billingAddress ? `<td><h4>Billing address</h4><div class="customer-info">${escapeHtml(order.billingAddress)}</div></td>` : ''}
+          </tr></table>`
+        : '<p class="customer-info" style="color:#888;">Customer addresses will appear after fetching order data.</p>';
+
+      document.getElementById('preview-label').textContent = `Order confirmation preview — Order #${order.orderNumber}`;
+      document.getElementById('preview-note').textContent = order.fetchedAt
+        ? `Live Shopify data fetched ${new Date(order.fetchedAt).toLocaleString()}`
+        : 'Sample preview — fetch Shopify data to populate';
+
+      document.getElementById('email-root').innerHTML = `
+        <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td>
+          <table width="100%"><tr><td style="background:#960000;padding:28px 20px;text-align:center;">
+            <img src="https://cdn.shopify.com/s/files/1/0790/2049/1041/files/ohnorman-logo-light.webp?v=1787677671" alt="Oh Norman!" width="200" style="max-width:200px;">
+          </td></tr></table>
+          <table width="100%"><tr><td class="content__cell"><div class="container">
+            <h2 class="on-heading">Thank you for your order, ${escapeHtml(order.firstName)}!</h2>
+            <p class="on-body">Your order is being prepared. You'll receive another email once your order has shipped.</p>
+            <table class="actions-buttons" width="100%" cellpadding="0" cellspacing="0"><tr>
+              <td class="button__cell"><a href="#" class="button__text">View your order</a></td>
+              <td class="button__cell button__cell--shop-app"><a href="#" class="button__text">Track order with Shop</a></td>
+            </tr></table>
+            <p class="on-order-number">Order #${escapeHtml(order.orderNumber)}</p>
+          </div></td></tr></table>
+          <table width="100%"><tr><td class="section__cell"><div class="container">
+            <h3>Order summary</h3>
+            ${itemsHtml}
+            ${summaryRows}
+          </div></td></tr></table>
+          <table width="100%"><tr><td class="section__cell"><div class="container">
+            <h3>Customer information</h3>
+            ${customerHtml}
+          </div></td></tr></table>
+          <table width="100%"><tr><td style="background:#F3EDE1;padding:32px 0 0;text-align:center;">
+            <img src="https://cdn.shopify.com/s/files/1/0790/2049/1041/files/Have_questions.png?v=1787678909" alt="Have questions?" class="on-subheadline-img" width="600" height="47" style="display:block;width:100%;max-width:600px;height:auto;border:0;">
+            <p style="font-family: 'SharpSans-Book', Poppins, sans-serif; color:#960000;font-size:15px;margin:12px 24px 40px;">We're here to help. <a href="https://ohnorman.com/pages/contact" style="color:#960000;">Contact us</a> or check out our <a href="https://ohnorman.com/pages/faqs-1" style="color:#960000;">FAQs</a>.</p>
+          </td></tr></table>
+          <table width="100%"><tr><td style="background:#FFB000;padding:0;text-align:center;">
+            <img src="https://cdn.shopify.com/s/files/1/0790/2049/1041/files/Made_for_transactional_email_header.png?v=1787678918" alt="Made For Pets" class="on-subheadline-img" width="600" height="79" style="display:block;width:100%;max-width:600px;height:auto;border:0;">
+            <p class="on-made-for-pets-body" style="margin:16px 24px 40px;">All-natural supplements, treats & care products in partnership with Board-Certified Veterinary Specialists. Plus, every purchase <a href="https://ohnorman.com/pages/about-us-1" style="color:#960000;">gives back to rescues</a>.</p>
+          </td></tr></table>
+          <table width="100%"><tr><td style="background:#960000;">
+            <table width="100%"><tr><td align="center" style="padding:20px 24px;border-bottom:1px solid #FAF4E8;"><a href="https://ohnorman.com/collections/our-dog-products" class="on-nav-link">Dog</a></td></tr>
+            <tr><td align="center" style="padding:20px 24px;border-bottom:1px solid #FAF4E8;"><a href="https://ohnorman.com/collections/our-cat-products" class="on-nav-link">Cat</a></td></tr>
+            <tr><td align="center" style="padding:20px 24px;"><a href="https://ohnorman.com/collections/gift-cards" class="on-nav-link">Gift Card</a></td></tr></table>
+          </td></tr></table>
+          <table width="100%"><tr><td style="background:#960000;padding:28px 20px 32px;text-align:center;border:none;outline:none;">
+            <table cellpadding="0" cellspacing="0" border="0" align="center" style="margin:0 auto 20px;">
+              <tr>
+                <td style="padding:0 10px;"><a href="https://www.facebook.com/ohnorman/" style="border:0;outline:none;text-decoration:none;"><img src="https://cdn.shopify.com/s/files/1/0790/2049/1041/files/FFB100.png?v=1787678882" alt="Facebook" width="36" height="36" style="display:block;border:0;outline:none;"></a></td>
+                <td style="padding:0 10px;"><a href="https://www.youtube.com/@ohnorman" style="border:0;outline:none;text-decoration:none;"><img src="https://cdn.shopify.com/s/files/1/0790/2049/1041/files/FFB100_1.png?v=1787678882" alt="YouTube" width="36" height="36" style="display:block;border:0;outline:none;"></a></td>
+                <td style="padding:0 10px;"><a href="https://www.instagram.com/ohnorman/" style="border:0;outline:none;text-decoration:none;"><img src="https://cdn.shopify.com/s/files/1/0790/2049/1041/files/FFB100_2.png?v=1787678881" alt="Instagram" width="36" height="36" style="display:block;border:0;outline:none;"></a></td>
+              </tr>
+            </table>
+            <p class="on-footer-text">&copy; ${new Date().getFullYear()} Oh Norman!</p>
+            <p class="on-footer-text" style="font-size:11px;margin-top:16px;">
+              <a href="https://ohnorman.com/pages/contact" style="color:#FAF4E8;border:0;outline:none;">Contact Us</a> |
+              <a href="https://ohnorman.com/policies/privacy-policy" style="color:#FAF4E8;border:0;outline:none;">Privacy Policy</a> |
+              <a href="https://ohnorman.com/policies/terms-of-service" style="color:#FAF4E8;border:0;outline:none;">Terms and Conditions</a>
+            </p>
+          </td></tr></table>
+        </td></tr></table>`;
+    }
+
+    fetch('order-preview-data.json?' + Date.now())
+      .then((res) => {
+        if (!res.ok) throw new Error('No order-preview-data.json yet');
+        return res.json();
+      })
+      .then((data) => render(data))
+      .catch(() => {
+        document.getElementById('preview-note').className = 'preview-note error';
+        document.getElementById('preview-note').innerHTML = 'No Shopify data yet. Follow <strong>PREVIEW-SETUP.md</strong> to create a read-only app token, then run <code>ruby scripts/fetch-order-preview.rb 87897</code>.';
+        render(FALLBACK);
+      });
+  </script>
+</body>
+</html>
