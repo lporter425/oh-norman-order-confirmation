@@ -52,7 +52,7 @@
   {% endif %}
 {% endif %}
 
-{% capture email_title %}Thank you for your order{% if customer.first_name != blank %}, {{ customer.first_name }}{% endif %}!{% endcapture %}
+{% capture email_title %}Thank you for your order, {{ customer.first_name }}!{% endcapture %}
 {% capture email_body %}
   {% if has_pending_payment %}
     {% if buyer_action_required %}
@@ -63,7 +63,7 @@
   {% elsif payment_charged_on_fulfillment %}
     Hi {{ customer.first_name }}, we received your order. Your payment method will be charged when your order is ready to be fulfilled. We'll notify you when it's on its way.
   {% else %}
-    Your order is being prepared. You'll receive another email once your order has shipped.
+    Your order is being prepared. We'll send you another email as soon as it's on the way.
   {% endif %}
   {% assign gift_card_line_items = line_items | where: "gift_card" %}
   {% assign found_gift_card_with_recipient_email = false %}
