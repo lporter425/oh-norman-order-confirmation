@@ -1,9 +1,0 @@
-.env
-order-preview-data.json
-
-# Cursor workspace artifacts
-agent-tools/
-agent-transcripts/
-mcps/
-terminals/
-canvases/
