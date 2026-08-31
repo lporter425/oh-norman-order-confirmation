@@ -11,7 +11,7 @@ import urllib.request
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OWNER = "lporter425"
 REPO = "oh-norman-order-confirmation"
-MESSAGE = "Restore repo and sync total line typography with subscription activation preview"
+MESSAGE = "Remove red subtotal divider; add grey line before total"
 GH = os.environ.get(
     "GH",
     "/tmp/gh-extract/gh_2.67.0_macOS_arm64/bin/gh",
