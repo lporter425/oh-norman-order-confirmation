@@ -54,7 +54,7 @@ function renderLineItem(item, currency) {
 
 function summaryRow(label, value, isTotal = false) {
   if (isTotal) {
-    const totalStyle = "font-family:'SharpGroteskBold', 'Open Sans', Arial, sans-serif !important;color:#960000 !important;font-size:16px;font-weight:700;line-height:1.4;padding:12px 0 4px;";
+    const totalStyle = "font-family:'SharpGroteskBold', 'Open Sans', Arial, sans-serif !important;color:#960000 !important;font-size:16px;font-weight:700;line-height:1.4;padding:12px 0 4px;border-top:1px solid #cccccc;";
     return `<tr><td style="${totalStyle}">${escapeHtml(label)}</td><td align="right" style="${totalStyle}">${value}</td></tr>`;
   }
   const pad = label === 'Subtotal' ? '12px 0 6px' : '6px 0';
@@ -74,7 +74,7 @@ function renderSubtotals(order) {
   if (order.tax != null) rows.push(summaryRow((order.taxLabel || 'Taxes').replace('Estimated tax', 'Taxes'), money(order.tax, order.currency)));
   if (order.total != null) rows.push(summaryRow('Total', `${money(order.total, order.currency)} ${order.currency || 'USD'}`, true));
   if (!rows.length) return '';
-  return `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid #960000;">${rows.join('')}</table>`;
+  return `<table width="100%" cellpadding="0" cellspacing="0" border="0">${rows.join('')}</table>`;
 }
 
 function render(order) {
